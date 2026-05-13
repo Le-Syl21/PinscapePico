@@ -2840,14 +2840,13 @@ rgbStatusLight.colorMix object optional
   This optional property lets you configure the color mix formulas
   for the various primary and secondary colors that the Pinscape
   software displays via the status LED.  Pinscape uses the standard
-  RGB color-space formulas by default, but many RGB LEDs have such
-  unbalanced intrinsic brightness levels for their color elements that
-  the standard formulas don't end up looking anything like the colors
-  they're meant to display.  To fix this and get more accurate color
-  rendition, Pinscape lets you specify the actual formula to use for
-  each primary color.  You can set all of these, none of these, or
-  any subset; anything you don't set will use the built-in default
-  formula.
+  RGB color-space formulas by default, but a lot of RGB LEDs have
+  uneven native brightness across the three color channels, so the
+  standard color formulas don't always yield the desired colors when
+  displayed.  To allow for more accurate color rendition, Pinscape
+  lets you override the formulas to use for each status light color.
+  You can set all of these, none of these, or any subset; anything
+  you don't set will use the built-in default formulas.
 
   For each element, you can use one of the following formats:
   <ul>
@@ -2858,22 +2857,21 @@ rgbStatusLight.colorMix object optional
        the color elements, each with a number from 0 to 255
   </ul>
 
-  Note that the status LED uses a coarse-grained PWM control
-  that only allows for 16 gradations of brightness in each
-  channel.  This means that the three-digit HTML style "#RGB"
-  formula is really all that you need to specify the colors.
-  Despite this, the full six-digit format is accepted, and 
-  the range for the numeric format is 0 to 255 for each
-  color, but levels are rounded to the nearest multiple of 16.
-  The coarse PWM control is used because it avoids using any
-  native Pico PWM channels, which are a limited resource
-  that we'd prefer to leave available for other uses.  The
-  status light doesn't need such a mix rich of colors
-  that it justifies tying up the resources.  (In fact, the
-  original KL25Z version of Pinscape didn't use PWM colors
-  at all, so it could only show the basic primary and secondary
-  colors; the Pico version's coarse-grained PWM lets its show
-  a few extra colors, such as orange.)
+  The properties are entered in 8-bit-per-channel format, but
+  the status LED actually only has 4 bits of real resolution
+  per color, which equates to 16 gradations of brightness per channel.
+  The three-digit HTML style "#RGB" formula is really all that
+  you need to specify the colors.  The full six-digit format
+  is accepted, and the range for the numeric format is the
+  standard HTML range of 0 to 255 (0x00 to 0xFF), but the levels
+  are rounded to the nearest multiple of 16.  The reason
+  for the low resolution is that it makes it possible to
+  generate the PWM signal using only the Pico CPU, which
+  means that we don't have to tie up any of the Pico's native
+  PWM controller channels for the status LED, which doesn't
+  have any need for the wider range of colors they'd allow.
+  We'd prefer to keep the native PWM channels available for
+  other uses that can benefit from their higher resolution.
 
 rgbStatusLight.colorMix.red number|string|object optional
   Sets the RGB color mix for red displays on the status LED.

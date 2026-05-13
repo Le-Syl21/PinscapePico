@@ -61,9 +61,22 @@ target_link_libraries(
 # create map/bin/hex files
 pico_add_extra_outputs(PWMWorker)
 
-# Disable stdio on UART, enable on USB.  We'll use USB for debug output.
-# We assign all of the pins as either PWM outputs or I2C ports, so there
-# are no pins left over to assign to the UART.
+# Disable stdio on UART and USB.  We need all of the GPIO ports
+# for either PWM outputs or I2C connections, so there's nothing
+# left over for a UART connection.  And since the project is
+# meant to run as a standalone peripheral chip, similar to
+# something like a TLC59116 or PCA9685, our entire connection
+# to the outside world is handled over I2C, thus there's no
+# need for a USB connection to the PC host (and the overhead it
+# would add).
 pico_enable_stdio_uart(PWMWorker 0)
 pico_enable_stdio_usb(PWMWorker 0)
+
+# The one case where a USB connection might be useful is for
+# debugging, to let the host see logging messages.  So, if a
+# USB connection actually is configured (contrary to the
+# standard configuration), it's probably for a developer's use
+# for debugging, in which case we probably want to pause at
+# boot to allow time the user to establish a terminal connection,
+# to observe log messages generated during initialization.
 target_compile_definitions(PWMWorker PRIVATE PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=30000)
