@@ -436,9 +436,12 @@ Replace `MyConfig.json` with the actual name of your JSON file.  The
 settings don't go into effect until you reboot the device, which is
 why we also added `--reset` at the end.
 
-For Linux the config tool can be build by calling `./build_linux.sh` in folder _CmdLineConfigTool/Linux_.
+### Linux Config Tool
 
-A config file can be send by:
+A Linux version of the command-line config tool can be built via `./build_linux.sh`,
+under the folder (CmdLineConfigTool/Linux/).  Once that's built, you can
+install a config file on the Pico with this command:
+
 `./pinscape-config --put-config MyConfig.json --reset`
 
 ### Firmware updates
@@ -613,13 +616,17 @@ board designs.
 
 [Build Instructions](How-to-build.md)
 
-## Pinscape Pico API for Windows applications
+## Pinscape Pico APIs for Windows and Linux applications
 
 Part of this project is a C++ API for accessing a Pinscape Pico
 device from a Windows application.  The API is packaged as a C++
 static-link library (.lib) that you can include in any C++ project.
 Refer to [WinAPI/README.md](WinAPI/README.md), and the source
-files in the WinAPI/ folder.
+files in the (WinAPI/) folder.
+
+There's a parallel implementation of the API for Linux platforms,
+under the (LinuxAPI/) folder.
+
 
 ### USB protocols
 
@@ -628,7 +635,7 @@ extensible USB protocols.  You can access the device directly through
 its USB protocols in cases where the Windows API isn't suitable, such
 as from a Linux host, from another microcontroller, or from a Windows
 programming language that can't readily import C++ APIs.  See
-[USBProtocol/README.md](USBProtocol/README.md) and _LinuxAPI_ folder for details.
+[USBProtocol/README.md](USBProtocol/README.md).
 
 
 ## Command Console
