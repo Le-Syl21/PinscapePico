@@ -62,7 +62,7 @@ bool I2C::ValidateBusConfig(const char *feature, int bus)
 I2C *I2C::GetInstance(int bus, bool init)
 {
     // validate the bus number
-    if (bus < 0 || bus > _countof(inst))
+    if (bus < 0 || bus >= _countof(inst))
         return nullptr;
 
     // get the instance
