@@ -439,8 +439,8 @@ why we also added `--reset` at the end.
 ### Linux Config Tool
 
 A Linux version of the command-line config tool can be built via `./build_linux.sh`,
-under the folder (CmdLineConfigTool/Linux/).  Once that's built, you can
-install a config file on the Pico with this command:
+under the folder [CmdLineConfigTool/Linux/](CmdLineConfigTool/Linux/).
+Once that's built, you can install a config file on the Pico with this command:
 
 `./pinscape-config --put-config MyConfig.json --reset`
 
@@ -622,10 +622,10 @@ Part of this project is a C++ API for accessing a Pinscape Pico
 device from a Windows application.  The API is packaged as a C++
 static-link library (.lib) that you can include in any C++ project.
 Refer to [WinAPI/README.md](WinAPI/README.md), and the source
-files in the (WinAPI/) folder.
+files in the [WinAPI/](WinAPI/) folder.
 
 There's a parallel implementation of the API for Linux platforms,
-under the (LinuxAPI/) folder.
+under the [LinuxAPI/](LinuxAPI/) folder.
 
 
 ### USB protocols
