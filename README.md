@@ -639,9 +639,9 @@ wrappers for the USB protocols.  They're much easier to use than
 programming directly to USB - they provide higher-level abstractions
 and hide the tedious details of native USB access - but some
 applications might not have the option of working with C++ libraries.
-For example, the C++ APIs might not be an option if you wanted to
-access the Pico from another microcontroller, or from a programming
-language that can't import C++ libraries.
+For example, the C++ APIs might not be usable for accessing the Pico
+from another microcontroller, or from a programming language that
+can't import C++ libraries.
 
 For details on the USB protocols, see [USBProtocol/README.md](USBProtocol/README.md).
 
