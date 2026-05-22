@@ -43,9 +43,9 @@ uses.  On Windows, the vendor interface can be accessed via the WinUsb
 device driver.  WinUsb is a built-in component on all Windows versions
 from Vista onward, so this is a plug-and-play interface that doesn't
 require any user action to install device drivers.  (WinUSB is also
-available on Windows XP, but the driver must be manually installed) On
-Linux and MacOS, the same USB interface is accessible via the
-open-source libusb system.  
+available on Windows XP, but the driver must be manually installed
+there.)  On Linux and MacOS, the same USB interface is accessible via
+the open-source libusb system.  
 
 The vendor interface is the primary access point for the Pinscape Pico
 Config Tools.  It provides access to configuration, control, and
