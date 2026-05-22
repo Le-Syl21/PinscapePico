@@ -56,8 +56,9 @@ running diagnostic tests.
 
 ## C++ API for client access
 
-On Windows, we provide a separate, high-level C++ API for accessing
-both of these interfaces from client programs, under the WinAPI/ folder.
+On Windows, we provide a separate, high-level C++ API library for accessing
+both of these interfaces from client programs, under the [WinAPI/](../WinAPI/) folder.
+There's a parallel C++ API library for Linux under [LinuxAPI/](../LinuxAPI/).
 
 The API library makes it much easier to use the protocol interfaces
 than it would be to code directly to the operating system USB APIs.
