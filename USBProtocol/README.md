@@ -6,8 +6,8 @@ documentation for the wire interfaces, and as a basis for C++
 implementations of the host and device sides of the protocol.  They
 define structs, types, and constants useful for implementing the
 protocols, and are extensively commented with narrative descriptions
-of the workings of the protocols.  These serve as the specification
-and "source of truth" for how the protocols are meant to work.
+of the workings of the protocols.  These serve as the specifications
+for how the protocols are meant to work.
 
 The headers are designed to be compatible with Microsoft Visual C++ on
 the host and the ARM gcc cross-compiler for the device, so that the
@@ -39,13 +39,13 @@ their access with one another.
 ## VendorIfcProtocol.h
 
 This is the protocol that Pinscape Pico's private "Vendor Interface"
-uses.  On Windows, the vendor interface can be accessed via the
-WinUsb device driver.  WinUsb is a built-in component on all Windows
-versions from Vista onward, so this is a plug-and-play interface that
-doesn't require any user action to install device drivers.  (The
-exception is Windows XP, where WinUsb is available, but must be
-manually installed.)  On Linux and MacOS, the same USB interface is
-accessible via the open-source libusb system.  
+uses.  On Windows, the vendor interface can be accessed via the WinUsb
+device driver.  WinUsb is a built-in component on all Windows versions
+from Vista onward, so this is a plug-and-play interface that doesn't
+require any user action to install device drivers.  (WinUSB is also
+available on Windows XP, but the driver must be manually installed) On
+Linux and MacOS, the same USB interface is accessible via the
+open-source libusb system.  
 
 The vendor interface is the primary access point for the Pinscape Pico
 Config Tools.  It provides access to configuration, control, and
