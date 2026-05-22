@@ -624,18 +624,29 @@ static-link library (.lib) that you can include in any C++ project.
 Refer to [WinAPI/README.md](WinAPI/README.md), and the source
 files in the [WinAPI/](WinAPI/) folder.
 
-There's a parallel implementation of the API for Linux platforms,
+There's a parallel implementation of the C++ API library for Linux,
 under the [LinuxAPI/](LinuxAPI/) folder.
 
 
 ### USB protocols
 
-The Windows C++ API is built atop a set of documented, structured, and
-extensible USB protocols.  You can access the device directly through
-its USB protocols in cases where the Windows API isn't suitable, such
-as from a Linux host, from another microcontroller, or from a Windows
-programming language that can't readily import C++ APIs.  See
-[USBProtocol/README.md](USBProtocol/README.md).
+The C++ APIs access the device through a set of documented,
+structured, and extensible USB interfaces.  The USB protocols are
+considered part of the public API, so if you prefer, you can write
+programs that access the device directly through the USB interfaces,
+bypassing the C++ libraries.  The C++ libraries are really just
+wrappers for the USB protocols.  They're much easier to use than
+programming directly to USB - they provide higher-level abstractions
+and hide the tedious details of native USB access - but some
+applications might not have the option of working with C++ libraries.
+For example, the C++ APIs might not be an option if you wanted to
+access the Pico from another microcontroller, or from a programming
+language that can't import C++ libraries.
+
+For details on the USB protocols, see [USBProtocol/README.md](USBProtocol/README.md).
+
+If you do wish to program directly to the USB protocols, the source
+code of the C++ API libraries might serve as implementation examples.
 
 
 ## Command Console
