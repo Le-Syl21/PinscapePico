@@ -260,7 +260,7 @@ namespace PinscapePico
         // - TinyUSB version string: the version of the TinyUSB
         //   library used to build the firmware, of the form "x.y.z".
         //   (TinyUSB is the Pico SDK's official USB layer, but it's
-        //   a separate pboject with its own versioning.  The Pico
+        //   a separate project with its own versioning.  The Pico
         //   SDK version doesn't necessarily imply a particular
         //   TinyUSB version.)
         //    
@@ -2229,7 +2229,7 @@ namespace PinscapePico
         //
         // - Output (DOF) port: unit is zero, port is the output port number
         //
-        // - ADC: port is the channel number on the devcie
+        // - ADC: port is the channel number on the device
         // 
         // These fields are unused for other source types.
         uint8_t sourceUnit;
@@ -2936,6 +2936,30 @@ namespace PinscapePico
         // readings at 300 mm/s.  You might want to leave some headroom
         // above the actual observed maximum to allow for outliers.
         uint16_t velocityScalingFactor;
+
+        // Low-pass filter frequency, in Hertz.  This sets the corner
+        // (cutoff) frequency of a digital low-pass filter applied to
+        // the raw accelerometer readings.  This is applied along with
+        // the DC blocker filter and jitter filter to produce the
+        // filtered acceleration signal.
+        //
+        // The purpose of the low-pass filter is to reduce noise from
+        // non-nudge vibrations, especially from sources within the pin
+        // cab itself, such as subwoofers, exciters, and shaker motors,
+        // and solenoids.  Human nudge input tends to appear in the
+        // accelerometer signal as a very low frequency component, since
+        // nudging involves physically swaying the whole cabinet, which
+        // is a large object with a lot of inertia.  Vibrations from the
+        // audio system and force-feedback devices tend to be at much
+        // higher frequency, so we can reduce them by applying a
+        // low-pass filter, which attenuates higher-frequency
+        // components.  The cutoff frequency isn't a hard limit on the
+        // frequencies allowed through; it's just the point where the
+        // signal is attenuated by 3dB, to 70.7% of its original
+        // strength.
+        //
+        // Set to zero to disable the low-pass filter.
+        uint16_t lpFreq;
 
     } __PackedEnd;
     

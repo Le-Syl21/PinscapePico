@@ -1118,7 +1118,7 @@ void Logger::USBCDCLogger::Task()
     // The bug reports on the Web claim that the only way to clear the
     // error is to disconnect the device, either by physically
     // unplugging it, or by forcing a USB disconnect in software on the
-    // device side.  Microsoft might have partially fixed in a more
+    // device side.  Microsoft might have partially fixed it in a more
     // recent version, because on Windows 11 at least, restarting the
     // application session (closing and relaunching Putty, for example)
     // clears it.  But they didn't fix the underlying problem, so the
@@ -1135,14 +1135,14 @@ void Logger::USBCDCLogger::Task()
     // probably isn't polling.
     //
     // Unfortunately, there currently isn't anything that we can do to
-    // fix the bug when it occurs, so detection is actually kind of
-    // pointless.  I've tried a bunch of approaches without success, and
-    // all of the discussion of the bug on the Web agrees that the
-    // device is powerless to fix it.  But I'm hoping that someone will
-    // eventually come up with a clever solution that we can execute on
-    // the Pico side, which would make it worthwhile to know when the
-    // bug has occurred.  And detection is simple and low-impact.  We
-    // can at least log a report when we detect the bug.
+    // fix the bug when it occurs, so it's essentially pointless to
+    // detect the condition.  I've tried a bunch of approaches without
+    // success, and all of the discussion of the bug on the Web agrees
+    // that the device is powerless to fix it.  But I'm hoping that
+    // someone will eventually come up with a clever solution that we
+    // can execute on the Pico side, which would make it worthwhile to
+    // know when the bug has occurred.  And detection is simple and
+    // low-impact.  We can at least log a report when we detect the bug.
     if (outAvail < CFG_TUD_CDC_TX_BUFSIZE)
     {
         // FIFO contains data.  If we're transitioning from inactive

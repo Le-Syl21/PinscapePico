@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <vector>
+#include <list>
 #include <set>
 #include <map>
 

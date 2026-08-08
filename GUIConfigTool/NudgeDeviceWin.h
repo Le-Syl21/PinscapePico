@@ -117,6 +117,7 @@ namespace PinscapePico
 		static const int ID_BTN_SAVE = 334;
 		static const int ID_BTN_REVERT = 335;
 		static const int ID_SCROLLBAR = 336;
+		static const int ID_EDIT_LPFREQ = 337;
 
 		// main scrollbar position
 		int yScrollPos = 0;
@@ -137,6 +138,7 @@ namespace PinscapePico
 		HWND quietYEdit = NULL;
 		HWND quietZEdit = NULL;
 		HWND dcTimeEdit = NULL;
+		HWND lpFreqEdit = NULL;
 		HWND jitterXEdit = NULL;
 		HWND jitterYEdit = NULL;
 		HWND jitterZEdit = NULL;

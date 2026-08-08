@@ -205,6 +205,7 @@ void NudgeDevice::Configure(JSONParser &json)
             "  -s, --stats     show statistics\n"
             "  --calibrate     start noise calibration (runs for timed interval)\n"
             "  --dc-time <t>   set the DC filter time to <t> milliseconds; 0 disables the filter\n"
+            "  --lpf-freq <f>  set the low-pass filter frequency to <f> Hz; 0 disables the filter\n"
             "  --jitter-x <n>  set the X axis jitter (hysteresis) filter window to <n> units\n"
             "  --jitter-y <n>  set the Y axis jitter window to <n> units\n"
             "  --jitter-z <n>  set the Z axis jitter window to <n> units\n"
@@ -242,6 +243,7 @@ bool NudgeDevice::CommitSettings()
     s.autoCenterInterval = autoCenterInterval;
     s.velocityScalingFactor = static_cast<uint16_t>(velocityScalingFactor);
     s.velocityDecayTime = static_cast<uint16_t>(velocityDecayTime);
+    s.lpCutoffFreq = lpCutoffFreq;
 
     // save it under the device name
     char fname[32];
@@ -276,6 +278,7 @@ bool NudgeDevice::RestoreSettings(bool *pFileExists)
         s.autoCenterInterval = 4000000;
         s.velocityDecayTime = 2000;
         s.velocityScalingFactor = 100;
+        s.lpCutoffFreq = 0;
     }
 
     // count it as successful if we loaded a file, or if the file simply
@@ -289,11 +292,14 @@ bool NudgeDevice::RestoreSettings(bool *pFileExists)
     autoCenterEnabled = s.autoCenterEnabled;
     autoCenterInterval = s.autoCenterInterval;
 
-    // set the filter parameters
+    // set the DC filter parameters
     SetDCTime(s.dcTime);
     xFilter.SetWindow(s.xJitterWindow);
     yFilter.SetWindow(s.yJitterWindow);
     zFilter.SetWindow(s.zJitterWindow);
+
+    // set the low-pass filter parameters
+    SetLPCutoffFreq(s.lpCutoffFreq);
 
     // set the velocity scaling factor
     velocityScalingFactor = s.velocityScalingFactor;
@@ -509,6 +515,7 @@ size_t NudgeDevice::Populate(PinscapePico::NudgeStatus *s, size_t bufSize)
     auto &f = settingsFile;
     if (quietThreshold != f.quietThreshold
         || dcTime != f.dcTime
+        || lpCutoffFreq != f.lpCutoffFreq
         || xFilter.windowSize != f.xJitterWindow
         || yFilter.windowSize != f.yJitterWindow
         || zFilter.windowSize != f.zJitterWindow
@@ -580,6 +587,7 @@ size_t NudgeDevice::GetParams(PinscapePico::NudgeParams *s, size_t bufSize)
     s->zJitterWindow = zFilter.windowSize;
     s->velocityScalingFactor = static_cast<uint16_t>(velocityScalingFactor);
     s->velocityDecayTime_ms = static_cast<uint16_t>(velocityDecayTime);
+    s->lpFreq = static_cast<uint16_t>(lpCutoffFreq);
 
     // return the populated struct size
     return sizeof(PinscapePico::NudgeParams);
@@ -615,6 +623,10 @@ bool NudgeDevice::SetParams(const PinscapePico::NudgeParams *s, size_t bufSize)
     xFilter.SetWindow(s->xJitterWindow);
     yFilter.SetWindow(s->yJitterWindow);
     zFilter.SetWindow(s->zJitterWindow);
+
+    // update the low-pass filter parameters, if the struct version includes this field
+    if (bufSize >= offsetnext(PinscapePico::NudgeParams, lpFreq))
+        SetLPCutoffFreq(s->lpFreq);
 
     // set the velocity scaling factor and decay time
     velocityScalingFactor = static_cast<float>(s->velocityScalingFactor);
@@ -693,6 +705,18 @@ void NudgeDevice::Command_main(const ConsoleCommandContext *c)
             else
                 c->Printf("DC filter time set to %d ms\n", t);
         }
+        else if (strcmp(a, "--lpf-freq") == 0)
+        {
+            if (++i >= c->argc)
+                return c->Printf("Missing argument for --lpf-freq\n");
+
+            int f = atoi(c->argv[i]);
+            SetLPCutoffFreq(f);
+            if (f == 0)
+                c->Printf("Low-pass filter disabled\n");
+            else
+                c->Printf("Low-pass filter cutoff frequency set to %d Hz\n", f);
+        }
         else if (strncmp(a, "--jitter-", 9) == 0)
         {
             if (++i >= c->argc)
@@ -756,7 +780,8 @@ void NudgeDevice::ShowStats(const ConsoleCommandContext *c)
         "  Velocity (mm/s):  %.1lf, %.1lf, %.1lf\n"
         "  Velocity (INT16): %d,%d,%d\n"
         "  Velocity scaling: %.0lf\n"
-        "  DC blocker time:  %d ms\n"
+        "  DC blocker time:  %d ms%s\n"
+        "  Low-pass filter:  %d Hz%s\n"
         "  Jitter window:    %d, %d, %d\n"
         "  Average snapshot: %d, %d, %d\n"
         "  Auto-centering:   %s\n"
@@ -770,7 +795,8 @@ void NudgeDevice::ShowStats(const ConsoleCommandContext *c)
         vx, vy, vz,
         Clip(vx * velocityScalingFactor), Clip(vy * velocityScalingFactor), Clip(vz * velocityScalingFactor),
         velocityScalingFactor,
-        static_cast<int>(roundf(dcTime * 1000.0f)),
+        static_cast<int>(roundf(dcTime * 1000.0f)), dcTime == 0 ? " (Disabled)" : "",
+        lpCutoffFreq, lpCutoffFreq == 0 ? " (Disabled)" : "",
         xFilter.windowSize, yFilter.windowSize, zFilter.windowSize,
         autoCenterAverage.snapshot.x, autoCenterAverage.snapshot.y, autoCenterAverage.snapshot.z,
         autoCenterEnabled ? "Enabled" : "Disabled",
@@ -822,14 +848,28 @@ void NudgeDevice::ShowStats(const ConsoleCommandContext *c)
 // Filter
 //
 
-void NudgeDevice::Filter::CalcAlpha()
+void NudgeDevice::Filter::CalcDCAlpha()
 {
     // A time constant of zero means no DC blocking.  Very small
     // values make the filter unstable, so set a lower limit.
     if (nudge->dcTime == 0.0f)
-        alpha = 0.0f;
+        dcAlpha = 0.0f;
     else
-        alpha = 1.0f - 1.0f/(static_cast<float>(nudge->sampleRate) * fmaxf(nudge->dcTime, 0.05f));
+        dcAlpha = 1.0f - 1.0f/(static_cast<float>(nudge->sampleRate) * fmaxf(nudge->dcTime, 0.05f));
+}
+
+void NudgeDevice::Filter::CalcLPAlpha()
+{
+    // A cutoff frequency of 0 disables the filter.
+    if (nudge->lpCutoffFreq == 0)
+    {
+        lpAlpha = 0.0f;
+    }
+    else
+    {
+        float c = 2.0f * 3.14159265f * static_cast<float>(nudge->lpCutoffFreq);
+        lpAlpha = c / (c + static_cast<float>(nudge->sampleRate));
+    }
 }
 
 void NudgeDevice::Filter::SetWindow(int size)
@@ -843,7 +883,7 @@ void NudgeDevice::Filter::SetWindow(int size)
 int NudgeDevice::Filter::Apply(int in)
 {
     // Apply the hysteresis filter.  Do this before the DC blocker, so that
-    // wandering noise that settles near the zero point by not quite exactly
+    // wandering noise that settles near the zero point but not quite exactly
     // at zero is pulled to exactly zero in the DC blocker stage.
     if (in < windowMin)
     {
@@ -855,21 +895,35 @@ int NudgeDevice::Filter::Apply(int in)
         windowMax = in;
         windowMin = in - windowSize;
     }
-    int out = in = (windowMin + windowMax) / 2;
+    float f = static_cast<float>(windowMin + windowMax) / 2.0f;
 
-    // apply the DC removal filter
-    if (alpha != 0.0f)
+    // Apply the DC removal filter.  This corrects for any tilt in the
+    // accerleometer's physical orientation (i.e., a non-zero angle
+    // between the accelerometer's Z axis and the Earth's gravity).
+    if (dcAlpha != 0.0f)
     {
-        // to retain fractional precision across readings, calculate ain
-        // floating point, and store the previous output as a float
-        float outf = alpha*outPrv + static_cast<float>(in - inPrv);
-        inPrv = in;
-        outPrv = outf;
+        // to retain fractional precision across readings, perform the
+        // calculation in floating point, and store the previous output
+        // as a float
+        float out = dcAlpha*dcOutPrv + static_cast<float>(f - dcInPrv);
+        dcInPrv = f;
+        dcOutPrv = out;
 
-        // convert to integer for the final output
-        out = static_cast<int>(roundf(outf));
+        // update the working value
+        f = out;
+    }
+
+    // Apply the low-pass filter.  This can help remove unwanted
+    // accelerometer excitement from shaker motors, feedback devices,
+    // and subwoofers.  Nudge inputs tend to be quite low-frequency,
+    // so filtering out higher frequencies can help remove those
+    // other sources.
+    if (lpAlpha != 0.0f)
+    {
+        f = lpAlpha*f + (1.0f - lpAlpha)*lpOutPrv;
+        lpOutPrv = f;
     }
 
     // return the result
-    return out;
+    return static_cast<int>(roundf(f));
 }

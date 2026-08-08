@@ -32,7 +32,7 @@ rem Usage:  call :BuildFirmwareForTarget (folder-path) (output-file-base-name) (
 :BuildFirmwareForTarget
   call :CleanFirmware "%~1" %2 %3
   pushd "%~1"
-  cmake -D PICO_BOARD:STRING=%3 -S . -G "NMake Makefiles"
+  cmake -DPIOASM_DIR=./build/pioasm -D PICO_BOARD:STRING=%3 -S . -G "NMake Makefiles"
   nmake /nologo
   rename %2.uf2 %2-%3.uf2
   rename %2.elf.map %2-%3.elf.map

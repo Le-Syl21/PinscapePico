@@ -212,6 +212,10 @@
    <li>DC blocking, which removes any constant offset in the signal,
    which can come from any tilt in the sensor's physical installation
    as well as from internal biases in the sensor's electronics.
+
+   <li>Low-pass filtering, which attenuates higher-frequency components
+   in the signal, to reduce interference from non-nudge vibrations
+   such as subwoofers and force-feedback devices.
    
    <li>Jitter filtering, which filters out readings that are within
    the margin of noise of the prior reading.
@@ -257,6 +261,66 @@
 </p>
 <p>
    Set this to zero to disable the DC blocker filter.
+</p>
+
+<h3>Low-pass filter cutoff frequency</h3>
+<p>
+   This sets the cutoff frequency for the low-pass filter, which
+   is the frequency where the signal is attenuated by 3 dB, or to
+   about 70.7% of its original strength.  The term "cutoff" can be
+   a little misleading, because it suggests that the filter will
+   absolutely block everything above this frequency, but the filter
+   really only <i>reduces</i> the strength of the signal as the
+   frequency increases.
+</p>
+<p>
+   The purpose of the low-pass filter is to reduce the amount
+   of interference that the nudge input picks up from non-nudge
+   vibrations in you pin cab.  The main thing we're trying to block
+   is vibrations that the pin cab itself generates intentionally,
+   such as from subwoofers, shaker motors, and solenoids.  These can
+   can cause enough vibration that the accelerometer will pick them
+   up and pass them along to the pinball game.  All of these sorts
+   of vibrations happen in <b>real</b> pinball machines as well,
+   so to some extent it's perfectly normal and expected for these
+   things to feed into the pinball simulator and affect the way
+   the game plays.  But pinball simulators can exaggerate these
+   effects so much that they become unrealistic and bothersome.
+</p>
+<p>
+   If you're seeing too much interference from the subwoofer or
+   other feedback devices, the first thing you should always try is to
+   reduce the strength of the accelerometer input in the simulation.
+   In Visual Pinball, you can do this by reducing the "Nudge Gain"
+   settings in the keyboard/joystick/DOF settings dialog.  Most virtual
+   pinball people turn their Gain settings up <b>way</b> too high,
+   because they want to see a satisfyingly dramatic effect when nudging
+   the machine.  But keep in mind that real pinball machines
+   are heavy beasts, and it takes quite a hard shove to move the
+   machine enough to have a visible effect on the ball's course.
+   Most real pinball machine nudging only has a subtle, often
+   invisible effect on the course of the ball.  For realistic
+   virtual pinball play, you should adjust the Nudge Gain settings
+   in the simulator so that you only see subtle effects in response
+   to fairly big nudges.
+</p>
+<p>
+   The low-pass filter might be helpful as a secondary remedy after
+   you've already tried reducing the Nudge Gain settings in the
+   simulator.  Nudge inputs tend to show up in the accelerometer
+   data as very low-frequency signals, since they represent the
+   whole pin cab swaying in response to a nudge.  That kind of
+   motion is inherently slow (which is another way of saying
+   "low frequency") because the pin cab is so large and heavy.
+   Vibrations from subwoofers and feedback devices tend to be at
+   higher frequencies, more in the audio range.  So the low-pass
+   filter might be helpful at removing them, since low-pass
+   filtering's whole function is to reduce the higher-frequency
+   components in a signal.
+</p>
+<p>
+   Set this to zero to disable the low-pass filter.  (This is
+   also the default setting.)
 </p>
 
 <h3>Jitter window</h3>

@@ -1556,8 +1556,8 @@ int VendorInterface::QueryNudgeParams(NudgeParams *params, size_t paramsSize)
 	if (result != PinscapeResponse::OK)
 		return result;
 
-	// make sure the struct is at least the expected size
-	if (xferIn.size() < sizeof(PinscapePico::NudgeParams))
+	// Make sure the struct is at least the v1 structure size
+	if (xferIn.size() < offsetnext(PinscapePico::NudgeParams, velocityScalingFactor))
 		return PinscapeResponse::ERR_BAD_REPLY_DATA;
 
 	// make sure the size is within range

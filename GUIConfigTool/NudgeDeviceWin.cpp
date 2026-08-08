@@ -173,6 +173,7 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 
 		// edit controls
 		RECT rcEdit = GetChildControlRect(dcTimeEdit);
+		RECT rcLpFreq = GetChildControlRect(lpFreqEdit);
 		int dyEdits = rcEdit.bottom - rcEdit.top + 10;
 		auto DrawEditBase = [&rcEdit, dyEdits, &hdc, hdwp, this](HWND edit, const char *label, bool alignOnLabel = false)
 		{
@@ -349,7 +350,8 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 		rcEdit = GetChildControlRect(dcTimeEdit);
 		int xEdits = xf + cxPlotF/2;
 		OffsetRect(&rcEdit, xEdits - rcEdit.left, y + cyPlot + mainFontMetrics.tmHeight + 48 - rcEdit.top);
-		DrawEditAdvanceY(dcTimeEdit, "DC Blocker time constant:");
+		DrawEditAdvanceY(dcTimeEdit, "DC Blocker time constant (ms):");
+		DrawEditAdvanceY(lpFreqEdit, "Low-pass filter cutoff  frequency(Hz):");
 		DrawEditAdvanceY(jitterXEdit, "X axis jitter window:");
 		DrawEditAdvanceY(jitterYEdit, "Y axis jitter window:");
 		DrawEditAdvanceY(jitterZEdit, "Z axis jitter window:");
@@ -640,6 +642,7 @@ void NudgeDeviceWin::OnCreateWindow()
 	quietYEdit = CreateEdit(ID_EDIT_QUIETY, 25, 8, nudgeParams.yThresholdAutoCenter, cbNudge);
 	quietZEdit = CreateEdit(ID_EDIT_QUIETZ, 25, 8, nudgeParams.zThresholdAutoCenter, cbNudge);
 	dcTimeEdit = CreateEdit(ID_EDIT_DCTIME, 50, 8, nudgeParams.dcTime, cbNudge);
+	lpFreqEdit = CreateEdit(ID_EDIT_LPFREQ, 50, 8, nudgeParams.lpFreq, cbNudge);
 	jitterXEdit = CreateEdit(ID_EDIT_JITTERX, 50, 8, nudgeParams.xJitterWindow, cbNudge);
 	jitterYEdit = CreateEdit(ID_EDIT_JITTERY, 50, 8, nudgeParams.yJitterWindow, cbNudge);
 	jitterZEdit = CreateEdit(ID_EDIT_JITTERZ, 50, 8, nudgeParams.zJitterWindow, cbNudge);
@@ -703,6 +706,7 @@ void NudgeDeviceWin::ReloadNudgeParams(bool force)
 	UpdateEdit(quietYEdit, newParams.yThresholdAutoCenter, nudgeParams.yThresholdAutoCenter);
 	UpdateEdit(quietZEdit, newParams.zThresholdAutoCenter, nudgeParams.zThresholdAutoCenter);
 	UpdateEdit(dcTimeEdit, newParams.dcTime, nudgeParams.dcTime);
+	UpdateEdit(lpFreqEdit, newParams.lpFreq, nudgeParams.lpFreq);
 	UpdateEdit(jitterXEdit, newParams.xJitterWindow, nudgeParams.xJitterWindow);
 	UpdateEdit(jitterYEdit, newParams.yJitterWindow, nudgeParams.yJitterWindow);
 	UpdateEdit(jitterZEdit, newParams.zJitterWindow, nudgeParams.zJitterWindow);
@@ -741,6 +745,7 @@ void NudgeDeviceWin::OnNudgeParamChange()
 	np.yThresholdAutoCenter = GetUI16(quietYEdit);
 	np.zThresholdAutoCenter = GetUI16(quietZEdit);
 	np.dcTime = GetUI16(dcTimeEdit);
+	np.lpFreq = GetUI16(lpFreqEdit);
 	np.xJitterWindow = GetUI16(jitterXEdit);
 	np.yJitterWindow = GetUI16(jitterYEdit);
 	np.zJitterWindow = GetUI16(jitterZEdit);

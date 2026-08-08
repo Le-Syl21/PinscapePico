@@ -16,6 +16,10 @@
 //
 #define _countof(array) (sizeof(array)/sizeof((array)[0]))
 
+// Struct offset of NEXT field after a given field.  This gives the size
+// of a struct UP TO AND INCLUDING the given field.
+#define offsetnext(s, m) (offsetof(s, m) + sizeof(s::m))
+
 
 // ---------------------------------------------------------------------------
 //

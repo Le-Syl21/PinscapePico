@@ -367,7 +367,10 @@ protected:
         Filter(NudgeDevice *nudge) : nudge(nudge) { }
 
         // recalculate the alpha value from the sample rate and adaptation time
-        void CalcAlpha();
+        void CalcDCAlpha();
+
+        // recalculate the low-pass filter alpha value from the cutoff frequency
+        void CalcLPAlpha();
 
         // set the hysteresis window size
         void SetWindow(int size);
@@ -375,9 +378,12 @@ protected:
         // containing nudge devie
         NudgeDevice *nudge;
 
-        // Filter alpha, calculated from sample rate and DC adaptation time in parent device.
+        // DC filter alpha, calculated from sample rate and DC adaptation time in parent device.
         // Zero disables the DC blocking part of the filter.
-        float alpha = 0.0f;
+        float dcAlpha = 0.0f;
+
+        // Low-pass filter alpha, calculated from the sample rate and cutoff frequency.
+        float lpAlpha = 0.0f;
 
         // hysteresis window size
         int windowSize = 0;
@@ -386,9 +392,12 @@ protected:
         int windowMin = 0;
         int windowMax = 0;
 
-        // filter state
-        int inPrv = 0;
-        float outPrv = 0.0f;
+        // DC filter state
+        int dcInPrv = 0;
+        float dcOutPrv = 0.0f;
+
+        // low-pass filter state
+        float lpOutPrv = 0.0f;
 
         // apply the filter to an incoming value
         int Apply(int in);
@@ -397,16 +406,28 @@ protected:
     Filter yFilter{ this };
     Filter zFilter{ this };
 
-    // DC blocker filter adaptation time constant, in seconds; 0 disables the filter
-    float dcTime;
+    // Low-pass filter cutoff frequency, in Hz.  0 disables the filter.
+    int lpCutoffFreq = 0;
+
+    // DC blocker filter adaptation time constant, in seconds.  0 disables the filter.
+    float dcTime = 0.0f;
 
     // set the DC time - recalculates the filter parameters
     void SetDCTime(float t)
     {
         dcTime = t;
-        xFilter.CalcAlpha();
-        yFilter.CalcAlpha();
-        zFilter.CalcAlpha();
+        xFilter.CalcDCAlpha();
+        yFilter.CalcDCAlpha();
+        zFilter.CalcDCAlpha();
+    }
+
+    // set the low-pass filter cutoff frequency, in Hz
+    void SetLPCutoffFreq(int freq)
+    {
+        lpCutoffFreq = freq;
+        xFilter.CalcLPAlpha();
+        yFilter.CalcLPAlpha();
+        zFilter.CalcLPAlpha();
     }
 
     // Rolling average.  We collect retrospective averages over recent
@@ -636,15 +657,18 @@ protected:
 
         // filter parameters
         float dcTime;
-        int xJitterWindow;
-        int yJitterWindow;
-        int zJitterWindow;
+        uint32_t xJitterWindow;
+        uint32_t yJitterWindow;
+        uint32_t zJitterWindow;
 
         // velocity decay time, in milliseconds
         uint16_t velocityDecayTime;
 
         // velocity scaling factor - INT16 units per mm/s
         uint16_t velocityScalingFactor;
+
+        // low-pass filter cutoff frequency
+        uint16_t lpCutoffFreq;
     };
 
     // last loaded settings file

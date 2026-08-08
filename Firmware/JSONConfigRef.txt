@@ -3148,24 +3148,26 @@ pwm object optional
 
 pwm.defaultFreq number optional
   Sets the default PWM frequency (in Hertz) for Pico GPIO ports that are 
-  used as GPIO outputs.  The default is 20000, which was chosen because 
-  it's high enough to be out of the human hearing range, so it shouldn't
-  produce any audible noise if a GPIO is used to drive a mechanical
-  device.  Motors and solenoids have a tendency to vibrate at the 
-  PWM frequency when controlled via PWM, which can produce acoustic
-  noise at the same frequency.  If this is in the audible range of
-  human hearing - anywhere from about 40 Hz to 20 kHz - it can
-  produce annoying buzzing or whining noises.  Frequencies above
-  20 kHz are too high for most people to hear, so even if we can't
-  eliminate the vibration, we can at least make it so high-pitched
-  that you can't hear it.  Your dog might still find it annoying,
-  though.  20000 Hz is also low enough that it shouldn't pose a
-  problem for external amplifier circuitry, such as optocouplers 
-  and MOSFETs.  GPIOs that control physical devices generally have
-  to be connected through amplifier circuits, and many of those
-  can only handle a limited range of PWM frequencies.  20 kHz
-  is within the tolerable range for typical circuits used for this
-  purpose.
+  used as GPIO outputs.
+
+  The default frequency is 20000 Hz.  This was chosen as a sweet
+  spot between "too fast" and "too slow".  We don't want this number
+  to be too slow: rates below about 200 Hz can make LEDs visibly
+  flicker, and rates up to the high 10000s are within the human hearing
+  range, so they can cause audible vibration in motors and solenoids.
+  In these respects, higher is better.   But we also don't want the PWM
+  rate to be too fast, because a lot of electronics have limits to how
+  fast they can switch on and off.  Very high rates can prevent power
+  booster circuits from working, for example, especially those based on
+  optocouplers or Darlington transistors.  20000 Hz is fast enough that
+  it won't make LEDs flicker, and high enough to be out of the human
+  hearing range for use with motors and solenoids, but still low enough
+  that most electronics can handle it easily.
+
+  If you encounter problems with external booster circuits, especially
+  if they involve optocouplers, you can try reducing this setting.
+  Some optocouplers are especially slow and might need the rate to
+  be reduced to 10000 Hz or lower to work properly.
   
 usb object optional
   TOC: USB > Settings
@@ -3922,13 +3924,27 @@ outputs[].device.type="gpio".freq number optional
   default frequency, such as a flickering LED, or audible buzzing or
   whining from a motor or solenoid.
 
-  This is optional, and it's better to leave it at the default when you 
-  don't have a reason to change it, because setting the frequency to a 
-  custom value uses more resources on the Pico than using the default does.  
-  The Pico has a collection of PWM frequency generators that can be shared
-  among ports when the ports can accept the same frequency, so allowing
-  the system to apply the default frequency makes better use of this
-  sharing capability.
+  This is optional, and it's better <b>not</b> to include it if you don't
+  have a specific reason to.  When you omit this setting, the software
+  automatically assigns a PWM frequency based on available system
+  resources, so omitting it makes more efficient use of the hardware.
+  (The Pico has a limited number of PWM frequency generators, and each
+  one is shared among up to four ports.  When you let the software
+  assign the frequency, it maximizes the use of these shared generators.
+  When you assign specific frequencies in such a way that the shared
+  generators can't be used, the software must assign PIO resources
+  instead.  The PIOs are also needed for many of the other custom
+  peripherals that Pinscape supports, such as the shift register chips
+  and various plunger sensors, so it's better not to tie them up when
+  you don't have to.)
+
+  See also <tt><a href="#pwm.defaultFreq">pwm.defaultFreq</a></tt>,
+  which sets the global default PWM frequency for GPIO ports.
+  Note, however, that the frequency assigned to a port when you omit
+  the <tt>freq</bb> property isn't necessarily the global default.
+  If one of the <b>other</b> GPIO ports on the same shared PWM generator
+  is also set up as a PWM output, and it has an explicitly assigned
+  frequency, that will determine the default frequency on this port.
 
 outputs[].device.type="zblaunch"
   Sets the output as the ZB Launch Mode activation output.  When the PC

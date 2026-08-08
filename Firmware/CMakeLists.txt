@@ -67,7 +67,6 @@
 # it's perfectly safe to start from scratch with CMAKE if you're
 # ever in doubt about the integrity of the dependency tracking.
 
-
 # Note: this can be overridden on the CMAKE command line using
 # the -D option, as in:
 #
