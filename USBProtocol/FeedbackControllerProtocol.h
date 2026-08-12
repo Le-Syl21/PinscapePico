@@ -502,7 +502,7 @@ namespace PinscapePico
         // IDENTIFICATION REPORT
         // <0x01:BYTE> <UnitNumber:BYTE> <UnitName:CHAR[32]> <ProtocolVer:UINT16>
         //   <HardwareID:BYTE[8]> <NumPorts:UINT16> <PlungerType:UINT16>
-        //   <LedWizUnitMask:UINT16>
+        //   <LedWizUnitMask:UINT16> <NudgeRange:UINT8>
         //
         // This report is sent to the host in response to a REQ_QUERY_ID
         // command.  The arguments provide the host with identifying
@@ -515,6 +515,7 @@ namespace PinscapePico
         // <PlungerType>    = plunger sensor type code; one of the PLUNGER_xxx constants below
         // <HardwareID>     = the Pico's unique 64-bit hardware ID, as an array of 8 bytes
         // <LedWizUnitMask> = mask of unit numbers to assign as virtual LedWiz units
+        // <NudgeRange>     = nudge device dynamic range, as a "g" range; 0 if no nudge device or not available
         //
         // The Unit Number is a small integer (typically starting at 1 for
         // the first Pinscape unit in a system, and numbered sequentially
@@ -583,6 +584,22 @@ namespace PinscapePico
         // unit number directly is that the emulator will have to create more
         // than one virtual LedWiz if the Pico has more than 32 output ports
         // configured, since each LedWiz can only represent 32 ports.
+        //
+        // The Nudge Range is the configured dynamic range of the nudge
+        // device, if one is present.  This is expressed in "g" units
+        // (standard Earth gravity units), and reflects the magnitude of
+        // the range.  The following values are currently defined:
+        //
+        //    0x00           No accelerometer configured, or information not available
+        //    0x01 .. 0x10   The dynamic range in 'g' units (1 means +/- 1g, etc)
+        //    Other          Reserved
+        //
+        // This field was added to the report in firmware 1.0.3, so older
+        // firmware will always report 0x00, "not available".  Note that
+        // values above 0x10 (+/- 16g) are reserved, in case any devices
+        // added in the future need a way to represent ranges that aren't
+        // simple integer multiples of +/- 1g.
+        // 
         static const int RPT_ID = 0x01;
 
         // plunger type codes

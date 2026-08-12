@@ -109,6 +109,7 @@
 #include "NightMode.h"
 #include "TVON.h"
 #include "TimeOfDay.h"
+#include "Nudge.h"
 #include "Plunger/Plunger.h"
 #include "IRRemote/IRCommand.h"
 #include "IRRemote/IRTransmitter.h"
@@ -286,6 +287,9 @@ uint16_t USBIfc::FeedbackController::GetReport(hid_report_type_t type, uint8_t *
 
             // add the LedWiz unit mask
             PutUInt16(p, unitID.ledWizUnitMask);
+
+            // add the nudge device's "g" range
+            *p++ = static_cast<uint8_t>(nudgeDevice.GetGRange());
 
             // report request fulfilled
             pendingInputReports &= ~0x00000001;

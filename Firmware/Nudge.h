@@ -253,6 +253,10 @@ public:
     size_t GetParams(PinscapePico::NudgeParams *buf, size_t bufSize);
     bool SetParams(const PinscapePico::NudgeParams *buf, size_t bufSize);
 
+    // Get the "g" range of the underlying accelerometer device.  Returns
+    // 0 if not device is configured.
+    int GetGRange() const;
+
 protected:
     // Source device
     Accelerometer *source = &nullDevice;
@@ -375,7 +379,7 @@ protected:
         // set the hysteresis window size
         void SetWindow(int size);
 
-        // containing nudge devie
+        // containing nudge device
         NudgeDevice *nudge;
 
         // DC filter alpha, calculated from sample rate and DC adaptation time in parent device.

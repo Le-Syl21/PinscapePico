@@ -645,6 +645,25 @@ void NudgeDevice::SetVelocityDecayTime(unsigned int ms)
     velocityDecayFactor = powf(0.5f, static_cast<float>(ms) / 1000.0f / static_cast<float>(sampleRate));
 }
 
+int NudgeDevice::GetGRange() const
+{
+    // Return the native device's "g" range, or 0 if no device is
+    // configured.  Note that we explicitly test for the null device,
+    // and return 0 if matched, because the null device pretends to
+    // have a non-zero range so that the rest of the code can be
+    // purely device-agnostic (i.e., not needing any special cases
+    // for the null device or any other individual device type)
+    // without any risk of divide-by-zero faults in code that uses
+    // the range for purposes such as range normalization.  We do
+    // need the special dependency on the null device in this one
+    // case, because this API is defined as returning 0 if no
+    // physical accelerometer is configured (and it's defined that
+    // way because its main consumer is the USB API, which is also
+    // defined as distinguishing whether or not an accelerometer
+    // device is present).
+    return source == &nullDevice ? 0 : source->GetGRange();
+}
+
 
 // ---------------------------------------------------------------------------
 //
