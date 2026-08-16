@@ -502,7 +502,7 @@ namespace PinscapePico
         // IDENTIFICATION REPORT
         // <0x01:BYTE> <UnitNumber:BYTE> <UnitName:CHAR[32]> <ProtocolVer:UINT16>
         //   <HardwareID:BYTE[8]> <NumPorts:UINT16> <PlungerType:UINT16>
-        //   <LedWizUnitMask:UINT16>
+        //   <LedWizUnitMask:UINT16> <AccelRange:BYTE>
         //
         // This report is sent to the host in response to a REQ_QUERY_ID
         // command.  The arguments provide the host with identifying
@@ -515,6 +515,12 @@ namespace PinscapePico
         // <PlungerType>    = plunger sensor type code; one of the PLUNGER_xxx constants below
         // <HardwareID>     = the Pico's unique 64-bit hardware ID, as an array of 8 bytes
         // <LedWizUnitMask> = mask of unit numbers to assign as virtual LedWiz units
+        // <AccelRange>     = accelerometer dynamic range, in 'g' (2, 4, 8, ...), or 0 if no
+        //                    accelerometer is configured.  The nudge axes are scaled to this
+        //                    range, so a host that wants readings as physical accelerations
+        //                    needs it: the same accelerometer chip covers a different span
+        //                    depending on the gRange setting, and nothing else in the HID
+        //                    interface reveals which one is in effect.
         //
         // The Unit Number is a small integer (typically starting at 1 for
         // the first Pinscape unit in a system, and numbered sequentially

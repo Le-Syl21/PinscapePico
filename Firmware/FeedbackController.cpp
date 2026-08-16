@@ -287,6 +287,19 @@ uint16_t USBIfc::FeedbackController::GetReport(hid_report_type_t type, uint8_t *
             // add the LedWiz unit mask
             PutUInt16(p, unitID.ledWizUnitMask);
 
+            // Add the accelerometer's dynamic range, in 'g'.  A host that
+            // reads nudge input as a physical quantity needs this, because the
+            // axis values are scaled to the range and nothing else reveals it:
+            // the same chip reports over a different span depending on how it
+            // was configured.  Zero means no accelerometer is configured; the
+            // null device answers 2 for its own purposes, so it has to be
+            // told apart from a real device that happens to use 2g.
+            {
+                auto *accel = accelerometerRegistry.GetDefaultDevice();
+                bool haveAccel = (accel != nullptr && accel != accelerometerRegistry.GetNullDevice());
+                *p++ = haveAccel ? static_cast<uint8_t>(accel->GetGRange()) : 0;
+            }
+
             // report request fulfilled
             pendingInputReports &= ~0x00000001;
         }

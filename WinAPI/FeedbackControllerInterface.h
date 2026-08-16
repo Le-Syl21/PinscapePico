@@ -374,6 +374,9 @@ namespace PinscapePico
 			uint16_t plungerType;     // plunger type (PinscapePico::FeedbackControllerReport::PLUNGER_xxx)
 			uint16_t ledWizUnitMask;  // LedWiz unit mask (each bit represents a virtual LedWiz unit number, 
 									  // starting at unit #1 for the low-order bit)
+			uint8_t accelRange;       // accelerometer dynamic range, in 'g' (2, 4, 8, ...), or 0 if no
+									  // accelerometer is configured.  The nudge axes are scaled to this
+									  // range, so it's what turns an axis reading into an acceleration.
 		};
 		bool Decode(IDReport &id, const FeedbackReport &rpt);
 
