@@ -862,7 +862,8 @@ void PinscapeVendorIfc::ProcessRequest()
                 resp.status = Response::ERR_BAD_PARAMS;
                 break;
             }
-            
+            break;
+
         default:
             // invalid subcommand
             resp.status = Response::ERR_BAD_SUBCMD;
