@@ -737,6 +737,7 @@ bool FeedbackControllerInterface::Decode(IDReport &id, const FeedbackReport &rpt
 	id.numPorts = GetUInt16(p);
 	id.plungerType = GetUInt16(p);
 	id.ledWizUnitMask = GetUInt16(p);
+	id.nudgeRange = *p++;
 	return true;
 }
 

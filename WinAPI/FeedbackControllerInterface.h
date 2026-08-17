@@ -372,8 +372,17 @@ namespace PinscapePico
 			uint8_t hwid[8];          // Pico hardware ID (opaque 64-bit unique identifier embedded in hardware ROM)
 			uint16_t numPorts;        // number of configured logical output ports
 			uint16_t plungerType;     // plunger type (PinscapePico::FeedbackControllerReport::PLUNGER_xxx)
-			uint16_t ledWizUnitMask;  // LedWiz unit mask (each bit represents a virtual LedWiz unit number, 
+			uint16_t ledWizUnitMask;  // LedWiz unit mask (each bit represents a virtual LedWiz unit number,
 									  // starting at unit #1 for the low-order bit)
+
+			// Nudge device dynamic range, in 'g' units: 1 means +/- 1g, and so
+			// on, up to 0x10 for +/- 16g.  Zero means that no nudge device is
+			// configured, or that the firmware predates the field and left it
+			// zero-filled; values above 0x10 are reserved.  A host that reads
+			// the nudge axes as a physical quantity needs this, because the
+			// axis values are scaled to the range, and nothing else in the
+			// report reveals which range is in effect.
+			uint8_t nudgeRange;
 		};
 		bool Decode(IDReport &id, const FeedbackReport &rpt);
 
