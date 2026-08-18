@@ -58,7 +58,7 @@ namespace PinscapePico
 		struct Desc
 		{
 			Desc(int unitNum, const char *unitName, uint16_t ledWizUnitMask, const uint8_t *hwId,
-				const WCHAR *path, int numPorts, int plungerType, 
+				const WCHAR *path, int numPorts, int plungerType, int nudgeRange,
 				const VendorInterfaceDesc &vendorIfcDesc);
 
 			// match against an int -> match by unit number
@@ -129,6 +129,18 @@ namespace PinscapePico
 			// returns a valid string, by returning "Unknown" if the type
 			// isn't in the table.
 			static const char *GetPlungerTypeName(uint16_t typeCode);
+
+			// "g" range for the nudge device.  If an accelerometer
+			// nudge device is configured, this gives the magnitude of
+			// the configured dynamic range of the device in "g" units
+			// (standard Earth gravities).  A value of 1 indicates a
+			// dynamic range of +/- 1g, and so on.  All accelerometer
+			// chips currently supported have ranges from +/- 1g to
+			// +/- 16g.  A value of zero means that no nudge device
+			// is configured, OR that the information isn't available
+			// because the firmware didn't report it (because it's
+			// a version prior to 1.0.3).
+			int nudgeRange = 0;
 
 			// Feedback Controller HID device path.  This is the file
 			// system path that can be used to access the device's

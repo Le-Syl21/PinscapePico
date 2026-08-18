@@ -65,10 +65,10 @@ const char *FeedbackControllerInterface::Desc::GetPlungerTypeName(uint16_t typeC
 
 FeedbackControllerInterface::Desc::Desc(
 	int unitNum, const char *unitName, uint16_t ledWizUnitMask,
-	const uint8_t *hwId, const WCHAR *path, int numPorts, int plungerType,
+	const uint8_t *hwId, const WCHAR *path, int numPorts, int plungerType, int gRange,
 	const VendorInterfaceDesc &vendorIfcDesc) :
 	unitNum(unitNum), unitName(unitName), ledWizUnitMask(ledWizUnitMask), hwId(hwId),
-	path(path), numOutputPorts(numPorts), plungerType(plungerType),
+	path(path), numOutputPorts(numPorts), plungerType(plungerType), nudgeRange(nudgeRange),
 	vendorIfcDesc(vendorIfcDesc)
 {
 	if (auto it = plungerTypeNameMap.find(plungerType); it != plungerTypeNameMap.end())
@@ -262,7 +262,7 @@ HRESULT FeedbackControllerInterface::Enumerate(std::list<Desc> &units)
 						// success - add the unit to the result list
 						units.emplace_back(id.unitNum, id.unitName, id.ledWizUnitMask,
 							id.hwid, diDetail->DevicePath, id.numPorts, id.plungerType,
-							itVendorIfc->desc);
+							id.nudgeRange, itVendorIfc->desc);
 					}
 				}
 			}
