@@ -1135,7 +1135,11 @@ Button::GPIOSource *Button::CreateGPIOSource(
         return nullptr;
 
     // create the GPIO source
-    return new Button::GPIOSource(gp, activeHigh, usePull, debounceOnTime_us, debounceOffTime_us, enableLogging);
+    return new Button::GPIOSource(
+        gp, activeHigh, usePull,
+        lpFilterRiseTime_us, lpFilterFallTime_us,
+        debounceOnTime_us, debounceOffTime_us,
+        enableLogging);
 }
 
 // Parse an action
