@@ -503,6 +503,7 @@ namespace PinscapePico
         // <0x01:BYTE> <UnitNumber:BYTE> <UnitName:CHAR[32]> <ProtocolVer:UINT16>
         //   <HardwareID:BYTE[8]> <NumPorts:UINT16> <PlungerType:UINT16>
         //   <LedWizUnitMask:UINT16> <NudgeRange:UINT8>
+        //   <FirmwareVersion:BYTE[3]>
         //
         // This report is sent to the host in response to a REQ_QUERY_ID
         // command.  The arguments provide the host with identifying
@@ -516,6 +517,7 @@ namespace PinscapePico
         // <HardwareID>     = the Pico's unique 64-bit hardware ID, as an array of 8 bytes
         // <LedWizUnitMask> = mask of unit numbers to assign as virtual LedWiz units
         // <NudgeRange>     = nudge device dynamic range, as a "g" range; 0 if no nudge device or not available
+        // <FirmwareVersion> = firmware version, as major, minor, patch bytes; all zero if not available
         //
         // The Unit Number is a small integer (typically starting at 1 for
         // the first Pinscape unit in a system, and numbered sequentially
@@ -599,7 +601,31 @@ namespace PinscapePico
         // values above 0x10 (+/- 16g) are reserved, in case any devices
         // added in the future need a way to represent ranges that aren't
         // simple integer multiples of +/- 1g.
-        // 
+        //
+        // The Firmware Version is the running firmware's own version number,
+        // as three bytes: major, minor, patch, in that order.  All three are
+        // zero when the information isn't available, which is what firmware
+        // predating the field reports, since the unused argument bytes are
+        // zero-filled.  A real release is never 0.0.0, so zero is
+        // unambiguous.
+        //
+        // This is deliberately distinct from <ProtocolVer>, which versions
+        // the Feedback Controller protocol rather than the firmware: the two
+        // move independently, and a host that wants to know which firmware
+        // build it is talking to can't infer it from the protocol version.
+        //
+        // Nothing else on the HID interfaces carries it, either - the USB
+        // device descriptor's bcdDevice is fixed, and the product string
+        // has no version in it - so this report is the only place a host can
+        // find out.
+        //
+        // The practical use is telling "the firmware doesn't have this
+        // feature" apart from "the feature is off".  <NudgeRange> is the
+        // first example: zero there means either that no nudge device is
+        // configured or that the firmware predates the field, and only the
+        // firmware version separates the two.  Every field added from here
+        // on inherits the same benefit.
+        //
         static const int RPT_ID = 0x01;
 
         // plunger type codes
