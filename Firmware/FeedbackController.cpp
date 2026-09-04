@@ -291,6 +291,11 @@ uint16_t USBIfc::FeedbackController::GetReport(hid_report_type_t type, uint8_t *
             // add the nudge device's "g" range
             *p++ = static_cast<uint8_t>(nudgeDevice.GetGRange());
 
+            // add the firmware version, as major.minor.patch bytes
+            *p++ = static_cast<uint8_t>(VERSION_MAJOR);
+            *p++ = static_cast<uint8_t>(VERSION_MINOR);
+            *p++ = static_cast<uint8_t>(VERSION_PATCH);
+
             // report request fulfilled
             pendingInputReports &= ~0x00000001;
         }

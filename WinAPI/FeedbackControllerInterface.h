@@ -383,6 +383,26 @@ namespace PinscapePico
 			// axis values are scaled to the range, and nothing else in the
 			// report reveals which range is in effect.
 			uint8_t nudgeRange;
+
+			// Firmware version, as major.minor.patch.  All three are zero
+			// when the information isn't available, which is what firmware
+			// predating the field reports, since the unused argument bytes
+			// are zero-filled; a real release is never 0.0.0.
+			//
+			// Distinct from protocolVersion, which versions the Feedback
+			// Controller protocol rather than the firmware.  The two move
+			// independently, and nothing else on the HID interfaces carries
+			// the firmware's own version, so this report is the only place
+			// a host can find it.
+			//
+			// The practical use is telling "the firmware doesn't have this
+			// feature" apart from "the feature is off".  nudgeRange is the
+			// first example: zero there means either that no nudge device is
+			// configured or that the firmware is older than 1.0.3, and only
+			// this version separates the two.
+			uint8_t firmwareVersionMajor;
+			uint8_t firmwareVersionMinor;
+			uint8_t firmwareVersionPatch;
 		};
 		bool Decode(IDReport &id, const FeedbackReport &rpt);
 

@@ -738,6 +738,9 @@ bool FeedbackControllerInterface::Decode(IDReport &id, const FeedbackReport &rpt
 	id.plungerType = GetUInt16(p);
 	id.ledWizUnitMask = GetUInt16(p);
 	id.nudgeRange = *p++;
+	id.firmwareVersionMajor = *p++;
+	id.firmwareVersionMinor = *p++;
+	id.firmwareVersionPatch = *p++;
 	return true;
 }
 
