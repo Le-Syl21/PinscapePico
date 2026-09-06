@@ -304,7 +304,20 @@ const uint8_t *USBIfc::GetDeviceDescriptor()
 
         vid,                        // idVendor - Vendor ID (assigned by the USB-IF) - dynamic data to be filled in
         pid,                        // idProduct - Product ID (assigned by the manufacturer) - dynamic data to be filled in
-        0x0100,                     // bcdDevice - Device release number in binary-coded decimal
+        // bcdDevice - Device release number in binary-coded decimal.
+        //
+        // This is the standard place for a firmware version, and it costs
+        // nothing to fill in: it sits beside iManufacturer and iProduct in this
+        // same descriptor, so a host reads the version and the name of the thing
+        // being versioned from a single enumeration. hidapi surfaces it as
+        // hid_device_info::release_number and SDL as
+        // SDL_GetJoystickFirmwareVersion().
+        //
+        // Two BCD digits of major and two of minor, so 1.0.3 reads as 0x0103.
+        // The patch level shares the low byte; 16 bits cannot hold three
+        // independent components, so it is there for completeness rather than
+        // to be compared on.
+        static_cast<uint16_t>((VERSION_MAJOR << 8) | (VERSION_MINOR << 4) | VERSION_PATCH),
 
         0x01,                       // iManufacturer - Index of string descriptor describing manufacturer
         0x02,                       // iProduct - Index of string descriptor describing product
