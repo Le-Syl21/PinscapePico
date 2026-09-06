@@ -55,16 +55,29 @@ struct OpenPinballDeviceReport
     int16_t vyNudge;               // instantaneous nudge velocity, Y axis
     int16_t plungerPos;            // current plunger position
     int16_t plungerSpeed;          // instantaneous plunger speed
+
+    // --- added in 1.1 ---
+    uint8_t nudgeFullScale;        // full scale of axNudge/ayNudge, in g; 0 if unknown
+    uint8_t firmwareVersion[3];    // device firmware version: major, minor, patch;
+                                   //   all zero if the device doesn't report one
 };
 
 // USB packet size of the report.  Note that this might not equal sizeof(OpenPinballDeviceReport),
 // due to the possible differences between the native struct layout and the packed format of
 // the USB representation.
-#define OPENPINDEV_STRUCT_USB_SIZE  28
+#define OPENPINDEV_STRUCT_USB_SIZE  32
+
+// Size of the struct at each version, for readers that have to cope with a
+// device older than themselves.  A device reports the version it implements in
+// its usage string, and sends a report of the matching size; a reader built
+// against a later version must not assume the fields it knows about are all
+// there.
+#define OPENPINDEV_1_0_USB_SIZE     28
+#define OPENPINDEV_1_1_USB_SIZE     32
 
 // Usage String Descriptor text
-#define OPENPINDEV_STRUCT_STRDESC   "OpenPinballDeviceStruct/1.0"
-#define OPENPINDEV_STRUCT_LSTRDESC  L"OpenPinballDeviceStruct/1.0"
+#define OPENPINDEV_STRUCT_STRDESC   "OpenPinballDeviceStruct/1.1"
+#define OPENPINDEV_STRUCT_LSTRDESC  L"OpenPinballDeviceStruct/1.1"
 
 // pinballButtons indices.  Each button's bit mask can be calculated as (1 << index).
 #define OPENPINDEV_BTN_START         0      // start button

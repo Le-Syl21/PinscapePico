@@ -662,9 +662,11 @@ bool Reader::Read(OpenPinballDeviceReport &callerReport)
 		// got a report
 		newReport = true;
 
-		// if the report is at least the v1 struct size, process
-		// the internal fields
-		if (lastReport.size() >= OPENPINDEV_STRUCT_USB_SIZE)
+		// Process the button fields if the report is at least the 1.0 struct.
+		// Deliberately not the current struct size: that grows with each
+		// version, so testing against it would stop a device reporting an
+		// older, shorter version from being processed at all.
+		if (lastReport.size() >= OPENPINDEV_1_0_USB_SIZE)
 		{
 			// interpret the raw byte buffer as a report
 			const auto *rp = reinterpret_cast<const OpenPinballDeviceReport*>(lastReport.data());
@@ -699,15 +701,17 @@ bool Reader::Read(OpenPinballDeviceReport &callerReport)
 
 void Reader::Populate(OpenPinballDeviceReport &r, const uint8_t *buf, size_t bufLen)
 {
-	// make sure it's at least the v1 struct size
-	if (bufLen < OPENPINDEV_STRUCT_USB_SIZE)
-	{
-		// insufficient data - clear the caller's buffer and stop here
-		memset(&r, 0, sizeof(r));
-		return;
-	}
+	// Start from a cleared struct, so that any field the device is too old to
+	// send reads as zero rather than as leftover data.  Zero is the documented
+	// "not reported" value for the fields added after 1.0.
+	memset(&r, 0, sizeof(r));
 
-	// unpack all fields
+	// A report shorter than the 1.0 struct isn't something we can interpret at
+	// all -- those fields have been there since the first version.
+	if (bufLen < OPENPINDEV_1_0_USB_SIZE)
+		return;
+
+	// unpack the 1.0 fields
 	r.timestamp = UnpackU64(buf);
 	r.genericButtons = UnpackU32(buf);
 	r.pinballButtons = UnpackU32(buf);
@@ -717,6 +721,16 @@ void Reader::Populate(OpenPinballDeviceReport &r, const uint8_t *buf, size_t buf
 	r.vyNudge = UnpackI16(buf);
 	r.plungerPos = UnpackI16(buf);
 	r.plungerSpeed = UnpackI16(buf);
+
+	// Fields added in 1.1.  A 1.0 device stops here, and they keep the zeroes
+	// set above, which is what a caller reads as "the device doesn't say".
+	if (bufLen < OPENPINDEV_1_1_USB_SIZE)
+		return;
+
+	r.nudgeFullScale = *buf++;
+	r.firmwareVersion[0] = *buf++;
+	r.firmwareVersion[1] = *buf++;
+	r.firmwareVersion[2] = *buf++;
 }
 
 bool Reader::ReadRaw(void *buf, size_t byteLength)

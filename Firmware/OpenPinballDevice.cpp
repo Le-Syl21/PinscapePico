@@ -213,6 +213,16 @@ uint16_t USBIfc::OpenPinballDevice::GetReport(hid_report_type_t type, uint8_t *b
         PutInt16(p, vyNudgeSource->Read());
         PutInt16(p, plungerPosSource->Read());
         PutInt16(p, plungerSpeedSource->Read());
+
+        // 1.1: the full scale of the acceleration axes, and which firmware is
+        // reporting it. The scale is what gives axNudge/ayNudge a unit at all;
+        // without it a simulator has to ask the user what full scale means,
+        // and gets it wrong by a factor of two, four or eight when the user
+        // doesn't know either.
+        *p++ = static_cast<uint8_t>(nudgeDevice.GetGRange());
+        *p++ = static_cast<uint8_t>(VERSION_MAJOR);
+        *p++ = static_cast<uint8_t>(VERSION_MINOR);
+        *p++ = static_cast<uint8_t>(VERSION_PATCH);
     }
 
     // return the length populated
